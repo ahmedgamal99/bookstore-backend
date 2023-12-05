@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "start2": "node ./bin/www"
+    "start2": "node ./bin/www",
+    "build" : "nodemon ./bin/www"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
