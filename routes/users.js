@@ -69,20 +69,13 @@ router.get(
     let user = await User.findOne({ email: g_user.email });
 
     const token = user.generateAuthToken();
-    // const token = jwt.sign(
-    //   {
-    //     _id: user._id.toHexString(),
-    //     givenName: g_user.given_name,
-    //     familyName: g_user.family_name,
-    //     email: g_user.email,
-    //   },
-    //   process.env.jwtPrivateKey
-    // );
 
-    return res
-      .header("x-auth-token", token)
-      .json({ access: token })
-      .send("Hello");
+    return (
+      res
+        // .header("x-auth-token", token)
+        .json({ access: token })
+        .send("Hello")
+    );
   }
 );
 
