@@ -54,6 +54,24 @@ router.put("/decrement_book", auth, async (req, res) => {
   res.status(200).json(cart);
 });
 
+router.put("/remove_book", auth, async (req, res) => {
+  const user_id = req.user._id;
+
+  let cart = await Cart.findById(user_id);
+  if (!cart) {
+    cart = new Cart({ _id: user_id });
+    await cart.save();
+  }
+
+  let book_id = req.body.book_id;
+
+  cart.books.delete(book_id);
+
+  await cart.save();
+
+  return res.status(200).json({ message: "deleted book from cart" });
+});
+
 router.get("/", auth, async (req, res) => {
   const user_id = req.user._id;
 
