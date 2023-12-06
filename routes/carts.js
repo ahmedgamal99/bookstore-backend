@@ -27,7 +27,7 @@ router.post("/add_book", auth, async (req, res) => {
 
 // delete a booklist
 
-router.get("/decrement_book", auth, async (req, res) => {
+router.put("/decrement_book", auth, async (req, res) => {
   const user_id = req.user._id;
 
   let cart = await Cart.findById(user_id);
@@ -53,6 +53,7 @@ router.get("/decrement_book", auth, async (req, res) => {
 
   res.status(200).json(cart);
 });
+
 router.get("/", auth, async (req, res) => {
   const user_id = req.user._id;
 
