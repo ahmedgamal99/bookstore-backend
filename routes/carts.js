@@ -40,7 +40,7 @@ router.put("/decrement_book", auth, async (req, res) => {
 
   current_count = cart.books.get(book_id);
 
-  if (current_count === 0) {
+  if (current_count === 0 || current_count === 1) {
     cart.books.delete(book_id);
 
     await cart.save();
