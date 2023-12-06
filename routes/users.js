@@ -74,7 +74,6 @@ router.get(
       res
         // .header("x-auth-token", token)
         .json({ access: token })
-        .send("Hello")
     );
   }
 );
