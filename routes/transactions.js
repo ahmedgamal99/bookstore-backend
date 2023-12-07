@@ -67,7 +67,6 @@ router.get("/", auth, async (req, res) => {
     transactions[transactionId] = transactionData;
   });
 
-  console.log(transactions);
   return res.status(200).json({ transactions });
 });
 

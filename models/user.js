@@ -41,6 +41,12 @@ const userSchema = new mongoose.Schema({
     required: true,
     default: false,
   },
+
+  isActive: {
+    type: Boolean,
+    required: true,
+    default: true,
+  },
 });
 
 userSchema.methods.generateAuthToken = function () {

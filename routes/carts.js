@@ -25,8 +25,6 @@ router.post("/add_book", auth, async (req, res) => {
   res.json(cart);
 });
 
-// delete a booklist
-
 router.put("/decrement_book", auth, async (req, res) => {
   const user_id = req.user._id;
 
