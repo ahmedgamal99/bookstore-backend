@@ -38,7 +38,7 @@ router.post("/", auth, async (req, res) => {
 
   await cartObj.save();
 
-  return res.send("Success");
+  return res.status(200).json({ message: "Success" });
 });
 
 router.get("/", auth, async (req, res) => {
