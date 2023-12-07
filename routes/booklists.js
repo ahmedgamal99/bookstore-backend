@@ -135,43 +135,56 @@ router.get("/public_booklists", async (req, res) => {
       },
       { $unwind: "$author" },
       {
+        $lookup: {
+          from: User.collection.name,
+          localField: "bookLists.reviews.userId",
+          foreignField: "_id",
+          as: "reviewers",
+        },
+      },
+      {
         $project: {
           _id: 0,
           name: "$bookLists.name",
           books: "$bookLists.books",
-          reviews: "$bookLists.reviews", // Include the reviews
           authorName: {
             $concat: ["$author.given_name", " ", "$author.family_name"],
+          },
+          reviews: {
+            $ifNull: ["$bookLists.reviews", []], // Ensure that empty reviews are handled
           },
         },
       },
       {
-        $unwind: "$reviews", // Flatten the reviews array
-      },
-      {
-        $lookup: {
-          from: User.collection.name,
-          localField: "reviews.userId",
-          foreignField: "_id",
-          as: "reviewer",
+        $unwind: {
+          path: "$reviews",
+          preserveNullAndEmptyArrays: true, // Preserve booklists with no reviews
         },
       },
       {
-        $unwind: "$reviewer", // Flatten the reviewer array
-      },
-      {
         $group: {
-          _id: "$_id",
-          name: { $first: "$name" },
+          _id: "$name",
           books: { $first: "$books" },
           authorName: { $first: "$authorName" },
           reviews: {
             $push: {
-              reviewText: "$reviews.reviewText",
-              reviewerName: {
-                $concat: ["$reviewer.given_name", " ", "$reviewer.family_name"],
+              $cond: {
+                if: { $eq: ["$reviews", {}] },
+                then: "$$REMOVE",
+                else: {
+                  reviewText: "$reviews.reviewText",
+                  reviewerName: {
+                    $first: {
+                      $filter: {
+                        input: "$reviewers",
+                        as: "reviewer",
+                        cond: { $eq: ["$$reviewer._id", "$reviews.userId"] },
+                      },
+                    },
+                  },
+                  isHidden: "$reviews.isHidden",
+                },
               },
-              isHidden: "$reviews.isHidden",
             },
           },
         },
@@ -203,43 +216,56 @@ router.get("/authenticated", auth, async (req, res) => {
       },
       { $unwind: "$author" },
       {
+        $lookup: {
+          from: User.collection.name,
+          localField: "bookLists.reviews.userId",
+          foreignField: "_id",
+          as: "reviewers",
+        },
+      },
+      {
         $project: {
           _id: 0,
           name: "$bookLists.name",
           books: "$bookLists.books",
-          reviews: "$bookLists.reviews", // Include the reviews
           authorName: {
             $concat: ["$author.given_name", " ", "$author.family_name"],
+          },
+          reviews: {
+            $ifNull: ["$bookLists.reviews", []], // Ensure that empty reviews are handled
           },
         },
       },
       {
-        $unwind: "$reviews", // Flatten the reviews array
-      },
-      {
-        $lookup: {
-          from: User.collection.name,
-          localField: "reviews.userId",
-          foreignField: "_id",
-          as: "reviewer",
+        $unwind: {
+          path: "$reviews",
+          preserveNullAndEmptyArrays: true, // Preserve booklists with no reviews
         },
       },
       {
-        $unwind: "$reviewer", // Flatten the reviewer array
-      },
-      {
         $group: {
-          _id: "$_id",
-          name: { $first: "$name" },
+          _id: "$name",
           books: { $first: "$books" },
           authorName: { $first: "$authorName" },
           reviews: {
             $push: {
-              reviewText: "$reviews.reviewText",
-              reviewerName: {
-                $concat: ["$reviewer.given_name", " ", "$reviewer.family_name"],
+              $cond: {
+                if: { $eq: ["$reviews", {}] },
+                then: "$$REMOVE",
+                else: {
+                  reviewText: "$reviews.reviewText",
+                  reviewerName: {
+                    $first: {
+                      $filter: {
+                        input: "$reviewers",
+                        as: "reviewer",
+                        cond: { $eq: ["$$reviewer._id", "$reviews.userId"] },
+                      },
+                    },
+                  },
+                  isHidden: "$reviews.isHidden",
+                },
               },
-              isHidden: "$reviews.isHidden",
             },
           },
         },

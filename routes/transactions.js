@@ -34,9 +34,7 @@ router.post("/", auth, async (req, res) => {
 
   await transactionObj.save();
 
-  let cartObj = await Cart.findByIdAndDelete(user_id);
-
-  // await cartObj.save();
+  await Cart.findByIdAndDelete(user_id);
 
   return res.status(200).json({ message: "Success" });
 });
