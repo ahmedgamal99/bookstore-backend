@@ -48,10 +48,23 @@ router.get("/", auth, async (req, res) => {
     return res.status(404).json({ message: "Transaction not found" });
   }
 
-  // Convert the transactions Map to an object
+  // Manually convert transactions and items map into plain objects
   const transactions = {};
-  transactionObj.transactions.forEach((value, key) => {
-    transactions[key] = value.toObject({ virtuals: true });
+  transactionObj.transactions.forEach((transaction, transactionId) => {
+    // Convert the transaction itself into an object
+    const transactionData = transaction.toObject({ virtuals: true });
+
+    // Convert the items map within the transaction
+    const items = {};
+    transactionData.items.forEach((quantity, itemId) => {
+      items[itemId] = quantity;
+    });
+
+    // Assign the converted items back to the transaction data
+    transactionData.items = items;
+
+    // Add the transaction data to the transactions object
+    transactions[transactionId] = transactionData;
   });
 
   return res.status(200).json({ transactions });
