@@ -52,6 +52,10 @@ router.post("/login", async (req, res) => {
   if (!validPassword)
     return res.status(400).json({ error: "Invalid email or password" });
 
+  if (!user.isActive)
+    return res.status(400).json({
+      error: "Account has been deactivated, please contact site admin",
+    });
   const token = user.generateAuthToken();
   return res.status(200).json({ access: token });
 });
@@ -67,6 +71,11 @@ router.get(
   async (req, res) => {
     const g_user = req.user;
     let user = await User.findOne({ email: g_user.email });
+
+    if (!user.isActive)
+      return res.status(400).json({
+        error: "Account has been deactivated, please contact site admin",
+      });
 
     const token = user.generateAuthToken();
 
