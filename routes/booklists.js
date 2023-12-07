@@ -110,12 +110,10 @@ router.put("/add_review/:booklistId", auth, async (req, res) => {
 
     res.json({ message: "Review added successfully" });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "An error occurred while adding the review",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "An error occurred while adding the review",
+      error: error.message,
+    });
   }
 });
 
@@ -129,21 +127,53 @@ router.get("/public_booklists", async (req, res) => {
       { $limit: 10 },
       {
         $lookup: {
-          from: User.collection.name, // Join with the User collection
-          localField: "_id", // Field from the BookList document
-          foreignField: "_id", // Field from the User document
-          as: "author", // Alias for the joined data
+          from: User.collection.name,
+          localField: "_id",
+          foreignField: "_id",
+          as: "author",
         },
       },
-      { $unwind: "$author" }, // Flatten the author array
+      { $unwind: "$author" },
       {
         $project: {
           _id: 0,
           name: "$bookLists.name",
           books: "$bookLists.books",
+          reviews: "$bookLists.reviews", // Include the reviews
           authorName: {
             $concat: ["$author.given_name", " ", "$author.family_name"],
-          }, // Concatenate the author's name
+          },
+        },
+      },
+      {
+        $unwind: "$reviews", // Flatten the reviews array
+      },
+      {
+        $lookup: {
+          from: User.collection.name,
+          localField: "reviews.userId",
+          foreignField: "_id",
+          as: "reviewer",
+        },
+      },
+      {
+        $unwind: "$reviewer", // Flatten the reviewer array
+      },
+      {
+        $group: {
+          _id: "$_id",
+          name: { $first: "$name" },
+          books: { $first: "$books" },
+          authorName: { $first: "$authorName" },
+          reviews: {
+            $push: {
+              reviewText: "$reviews.reviewText",
+              reviewerName: {
+                $concat: ["$reviewer.given_name", " ", "$reviewer.family_name"],
+              },
+              isHidden: "$reviews.isHidden",
+            },
+          },
         },
       },
     ]);
@@ -165,21 +195,53 @@ router.get("/authenticated", auth, async (req, res) => {
       { $limit: 20 },
       {
         $lookup: {
-          from: User.collection.name, // Join with the User collection
-          localField: "_id", // Field from the BookList document
-          foreignField: "_id", // Field from the User document
-          as: "author", // Alias for the joined data
+          from: User.collection.name,
+          localField: "_id",
+          foreignField: "_id",
+          as: "author",
         },
       },
-      { $unwind: "$author" }, // Flatten the author array
+      { $unwind: "$author" },
       {
         $project: {
           _id: 0,
           name: "$bookLists.name",
           books: "$bookLists.books",
+          reviews: "$bookLists.reviews", // Include the reviews
           authorName: {
             $concat: ["$author.given_name", " ", "$author.family_name"],
-          }, // Concatenate the author's name
+          },
+        },
+      },
+      {
+        $unwind: "$reviews", // Flatten the reviews array
+      },
+      {
+        $lookup: {
+          from: User.collection.name,
+          localField: "reviews.userId",
+          foreignField: "_id",
+          as: "reviewer",
+        },
+      },
+      {
+        $unwind: "$reviewer", // Flatten the reviewer array
+      },
+      {
+        $group: {
+          _id: "$_id",
+          name: { $first: "$name" },
+          books: { $first: "$books" },
+          authorName: { $first: "$authorName" },
+          reviews: {
+            $push: {
+              reviewText: "$reviews.reviewText",
+              reviewerName: {
+                $concat: ["$reviewer.given_name", " ", "$reviewer.family_name"],
+              },
+              isHidden: "$reviews.isHidden",
+            },
+          },
         },
       },
     ]);
