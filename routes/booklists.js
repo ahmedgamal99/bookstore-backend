@@ -183,6 +183,7 @@ router.get("/public_booklists", async (req, res) => {
           authorName: { $first: "$authorName" },
           reviews: {
             $push: {
+              reviewId: "$reviews._id", // Include the review ID
               reviewText: "$reviews.reviewText",
               reviewerName: {
                 $concat: [
@@ -271,6 +272,7 @@ router.get("/authenticated", async (req, res) => {
           authorName: { $first: "$authorName" },
           reviews: {
             $push: {
+              reviewId: "$reviews._id", // Include the review ID
               reviewText: "$reviews.reviewText",
               reviewerName: {
                 $concat: [
