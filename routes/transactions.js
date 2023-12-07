@@ -32,11 +32,11 @@ router.post("/", auth, async (req, res) => {
 
   transactionObj.transactions.set(newId, transactionItem);
 
+  await transactionObj.save();
+
   let cartObj = await Cart.findByIdAndDelete(user_id);
 
   await cartObj.save();
-
-  await transactionObj.save();
 
   return res.send("Success");
 });
