@@ -50,8 +50,12 @@ const userSchema = new mongoose.Schema({
     default: true,
   },
 
-  emailVerificationToken: String,
-  emailVerificationTokenExpires: Date,
+  emailVerificationToken: { type: String, required: false, default: undefined },
+  emailVerificationTokenExpires: {
+    type: Date,
+    required: false,
+    default: undefined,
+  },
 });
 
 userSchema.methods.generateAuthToken = function () {
