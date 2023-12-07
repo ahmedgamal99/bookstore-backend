@@ -39,6 +39,34 @@ router.post("/sign_up", async (req, res) => {
   return res.status(200).header("x-auth-token", token).json(response);
 });
 
+router.get("/invoke_verify_email", auth, async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  user.generateVerificationToken();
+  user.sendVerificationEmail();
+
+  res.status(200).json({ message: "check your email for details" });
+});
+
+router.get("/verify_email", async (req, res) => {
+  const token = req.query.token;
+  const user = await User.findOne({
+    emailVerificationToken: token,
+    emailVerificationTokenExpires: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    return res.status(400).send("Token is invalid or has expired");
+  }
+
+  user.isVerified = true;
+  user.emailVerificationToken = undefined;
+  user.emailVerificationTokenExpires = undefined;
+  await user.save();
+
+  res.send("Email has been verified. Please log in.");
+});
+
 router.post("/login", async (req, res) => {
   const { error } = validateLogin(req.body);
   if (error) return res.status(400).json({ error: error.details[0].message });

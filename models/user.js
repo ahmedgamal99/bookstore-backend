@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const Joi = require("joi");
+const { crypto } = require("crypto");
+const nodemailer = require("nodemailer");
 
 const userSchema = new mongoose.Schema({
   given_name: {
@@ -47,6 +49,9 @@ const userSchema = new mongoose.Schema({
     required: true,
     default: true,
   },
+
+  emailVerificationToken: String,
+  emailVerificationTokenExpires: Date,
 });
 
 userSchema.methods.generateAuthToken = function () {
@@ -62,6 +67,36 @@ userSchema.methods.generateAuthToken = function () {
     },
     process.env.jwtPrivateKey
   );
+};
+
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, // For port 587, secure should be false. Nodemailer uses 'secure' instead of 'EMAIL_USE_TLS'
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+  tls: {
+    // Do not fail on invalid certs (equivalent to EMAIL_USE_TLS)
+    rejectUnauthorized: false,
+  },
+});
+
+userSchema.methods.generateVerificationToken = function () {
+  const verificationToken = crypto.randomBytes(32).toString("hex");
+  this.emailVerificationToken = verificationToken;
+  this.emailVerificationTokenExpires = Date.now() + 3600000; // 1 hour
+};
+
+userSchema.methods.sendVerificationEmail = async function () {
+  const verificationUrl = `${process.env.BASE_URL}/verify_email?token=${this.emailVerificationToken}`;
+
+  await transporter.sendMail({
+    to: this.email,
+    subject: "Verify your email",
+    html: `Please click this link to confirm your email: <a href="${verificationUrl}">${verificationUrl}</a>`,
+  });
 };
 
 function validateUser(user) {
