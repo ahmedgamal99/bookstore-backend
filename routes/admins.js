@@ -68,7 +68,7 @@ router.put("/toggle_admin/:user_id", auth, isAdmin, async (req, res) => {
     }
 
     // Toggle isActive status
-    user.isAdmin = !user.isActive;
+    user.isAdmin = !user.isAdmin;
 
     await user.save();
 
