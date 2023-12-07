@@ -45,6 +45,8 @@ router.get("/invoke_verify_email", auth, async (req, res) => {
   user.generateVerificationToken();
   user.sendVerificationEmail();
 
+  await user.save();
+
   res.status(200).json({ message: "check your email for details" });
 });
 
