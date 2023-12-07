@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const router = require("express").Router();
 const { auth } = require("../middleware/auth");
+
+const { Cart } = require("../models/cart");
 const {
   Transaction,
   TransactionItem,
@@ -30,7 +32,9 @@ router.post("/", auth, async (req, res) => {
 
   transactionObj.transactions.set(newId, transactionItem);
 
-  console.log(transactionItem);
+  let cartObj = await Cart.findByIdAndDelete(user_id);
+
+  await cartObj.save();
 
   await transactionObj.save();
 
