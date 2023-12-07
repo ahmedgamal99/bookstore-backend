@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const Joi = require("joi");
-const { crypto } = require("crypto");
+const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 
 const userSchema = new mongoose.Schema({
