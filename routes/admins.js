@@ -57,6 +57,32 @@ router.put("/toggle_active/:user_id", auth, isAdmin, async (req, res) => {
   }
 });
 
+router.put("/toggle_admin/:user_id", auth, isAdmin, async (req, res) => {
+  const user_id = req.params.user_id;
+
+  try {
+    const user = await User.findById(user_id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Toggle isActive status
+    user.isAdmin = !user.isActive;
+
+    await user.save();
+
+    res.status(200).json({
+      message: `User ${
+        user.isAdmin ? "Granted Admin Previliges" : "Removed Admin Privileges"
+      }`,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 router.put(
   "/toggle_review_visibility/:booklistId/:reviewId",
   auth,
