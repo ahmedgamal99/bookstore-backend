@@ -85,6 +85,40 @@ router.put("/add_books", auth, async (req, res) => {
   }
 });
 
+router.put("/add_review/:booklistId", auth, async (req, res) => {
+  try {
+    const booklistId = req.params.booklistId;
+    const userId = req.user._id; // Assuming the user ID is stored in req.user
+    const { reviewText } = req.body;
+
+    if (!reviewText) {
+      return res.status(400).json({ message: "Review text is required" });
+    }
+
+    // Find the booklist and add the review
+    const booklist = await BookList.findOne({ "bookLists._id": booklistId });
+
+    if (!booklist) {
+      return res.status(404).json({ message: "Booklist not found" });
+    }
+
+    // Find the specific booklist entry and add the review
+    const booklistEntry = booklist.bookLists.id(booklistId);
+    booklistEntry.reviews.push({ userId, reviewText, isHidden: false });
+
+    await booklist.save();
+
+    res.json({ message: "Review added successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        message: "An error occurred while adding the review",
+        error: error.message,
+      });
+  }
+});
+
 router.get("/public_booklists", async (req, res) => {
   try {
     const publicBookLists = await BookList.aggregate([

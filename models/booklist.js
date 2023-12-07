@@ -1,15 +1,21 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
 
+const reviewSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  reviewText: String,
+  isHidden: { type: Boolean, default: false }, // Field to indicate if the review is hidden
+});
+
 const bookListEntrySchema = new mongoose.Schema(
   {
     name: String, // Name of the booklist
     isPrivate: Boolean,
     books: [String], // Array of book identifiers or titles
+    reviews: [reviewSchema], // Array of reviews
   },
   { timestamps: true }
-); // Enable timestamps for each booklist entry
-
+);
 const bookListSchema = new mongoose.Schema(
   {
     _id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
