@@ -44,11 +44,29 @@ router.get("/", auth, async (req, res) => {
 
   let transactionObj = await Transaction.findById(user_id);
 
-  const transactions = transactionObj.transactions;
   if (!transactionObj) {
-    return res.status(200).json({});
+    return res.status(404).json({ message: "Transaction not found" });
   }
+
+  // Convert the transactions Map to an object
+  const transactions = {};
+  transactionObj.transactions.forEach((value, key) => {
+    transactions[key] = value.toObject({ virtuals: true });
+  });
 
   return res.status(200).json({ transactions });
 });
+
+// router.get("/", auth, async (req, res) => {
+//   const user_id = req.user._id;
+
+//   let transactionObj = await Transaction.findById(user_id);
+
+//   const transactions = transactionObj.transactions;
+//   if (!transactionObj) {
+//     return res.status(200).json({});
+//   }
+
+//   return res.status(200).json({ transactions });
+// });
 module.exports = router;
