@@ -6,7 +6,8 @@ const { isAdmin } = require("../middleware/admin");
 
 router.get("/get_users", auth, isAdmin, async (req, res) => {
   try {
-    const users = await User.find({})
+    const currentUserID = req.user._id;
+    const users = await User.find({ _id: { $ne: currentUserID } })
       .select("-password -passport") // Exclude password and passport fields
       .lean() // Convert to plain JavaScript objects to allow modification
       .exec();
