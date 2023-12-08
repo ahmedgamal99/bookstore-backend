@@ -94,7 +94,7 @@ userSchema.methods.generateVerificationToken = function () {
 };
 
 userSchema.methods.sendVerificationEmail = async function () {
-  const verificationUrl = `${process.env.BASE_URL}/verify_email?token=${this.emailVerificationToken}`;
+  const verificationUrl = `${process.env.BASE_URL}/auth/verify_email?token=${this.emailVerificationToken}`;
 
   await transporter.sendMail({
     to: this.email,
